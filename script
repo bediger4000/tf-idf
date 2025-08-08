@@ -1,0 +1,14 @@
+#!/bin/bash
+set -eou pipefail
+
+BLOG=$1
+
+find $BLOG/content/posts -name '*.md' -type f > posts
+find $BLOG/content/posts -name '*.md' -type f | xargs grep -F -l 'draft: true' > drafts
+grep -F -v -f drafts posts > published
+
+while read POSTNAME
+do
+	pandoc -f markdown-smart --no-highlight -t plain $POSTNAME |
+		sed -e 's/({{<..*>}})//' -e '/^    /d' -e '/^ *[ -][ -]*$/d'
+done < published
