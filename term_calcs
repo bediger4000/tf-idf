@@ -1,0 +1,28 @@
+#!/bin/bash
+set -eou pipefail
+
+TOTAL_UNIQ_TERMS=$(cat counts/*.md | cut -f1 -d' ' | sort | wc -l)
+echo $TOTAL_UNIQ_TERMS total unique terms
+
+TOTAL_TERMS=$(cat counts/*.md | cut -f2 -d' ' | datamash sum 1)
+echo $TOTAL_TERMS total number of terms
+
+TOTAL_DOCUMENTS=$(ls -1 counts | wc -l)
+
+cat counts/*.md | sort |
+awk '
+NR == 1 { term=$1; sum = $2; }
+NR > 1 {
+if (term != $1) { print term, sum; term = $1; sum = 0}
+sum += $2
+}
+END { print term, sum }
+' > term.counts
+
+awk "{print \$1, \$2/$TOTAL_TERMS}" term.counts > term.freqs
+
+cat counts/*.md | cut -f1 -d' ' | sort | uniq -c | awk '{print $2, $1}' >  document.counts
+
+awk "{print \$1, log($TOTAL_DOCUMENTS/\$2)}" document.counts > term.idf
+
+join term.freqs term.idf | awk '{printf "%s\t%f\n", $1, $2 * $3}' | sort -k2.1nr > tf-idf
