@@ -1,0 +1,21 @@
+#!/bin/bash
+set -eou pipefail
+
+rm -rf counts
+mkdir counts
+
+# Terms per document, each frequency or count in its own file
+while read POSTNAME
+do
+	BN=$(basename $POSTNAME)
+	echo $BN
+	cat plaintext/$BN |
+		sed -e 's/({{<..*>}})//' -e '/^    /d' -e '/^ *[ -][ -]*$/d' |
+		tr -cs "A-Za-z'" '\n' |
+		sed -e "/^'.*/d" -e '/^$/d' |
+		tr '[A-Z]' '[a-z]' |
+		grep -F -v -w -f /usr/share/groff/1.23.0/eign |
+		sort |
+		uniq -c |
+		awk '{print $2, $1}' > counts/$BN
+done < published
