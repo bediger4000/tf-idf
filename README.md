@@ -28,6 +28,9 @@ If you modify the contents of file `published`,
 in `published`.
 You can recover from some errors this way.
 
+Transforming Hugo markdown to plaintext took about 2 minutes
+for 350 blog posts on my Dell E7470 laptop.
+
 I did discover some markdown issues (missing URLs in links mostly) during this process.
 
 ### Phase 2: generate term counts from plain text files
@@ -53,16 +56,48 @@ The file `/usr/share/groff/current/eign` comes with [GNU Groff](https://www.gnu.
 ### Phase 3: calculate term frequency, inverse document frequency, tf-idf
 
 ```
-$ ./count_terms
+$ ./term_calcs
 ```
 
-Resulting files: `term.counts`, `term.freqs`, `document.counts`, `term.idf`, `tf-idf`.
+Resulting files: `document.counts`, `term.idf`,
+files in directories `frequency/` and `tf-idf/`.
 
-Files `term.counts`, `document.counts` have the total count of terms in all documents,
-and the count of documents each term appears in respectively.
+File `document.counts` contains the total count of terms in all documents.
+File `term.idf` contains inverse document frequency for each term.
 
-Files `term.freqs` is each term's count divided  by the number of terms total.
-`term.idf` has the individual terms inverse document frequence, ln(1/n<sub>t</sub>).
+Directory `frequency` has the term frequencies for the original
+markdown post in each file.
 
-File `tf-idf` has the TF-IDF statistic for each term in the blog.
-This is wrong, the term frequency is supposed to count per document, not overall.
+Directory `tf-idf` has the TF-IDF statistic for each term
+in the original document.
+Files in `tf-idf/` are sorted numerically
+so the highest TF-IDF scores are at the beginning of the file.
+
+#### Executables used
+
+I decided I could do all the TF-IDF work in shell scripts.
+I did all my work with a reasonably up-to-date Arch Linux install,
+but just to be sure, here's the executables the scripts invoke:
+
+- `awk`
+- `basename`
+- `cat`
+- `cut`
+- `find`
+- `grep` (with -F, so `fgrep`)
+- `join`
+- `mkdir`
+- `pandoc`
+- `rm`
+- `sed`
+- `sort`
+- `tr`
+- `uniq`
+- `wc`
+- `xargs`
+
+It's August 2025 as I write this, we are all transitioning
+from `fgrep` to `grep -F`.
+[pandoc](https://pandoc.org/) is the only unusual executable installed.
+The script does use `/usr/share/groff/current/eign`
+which might require the installation of `groff`.
