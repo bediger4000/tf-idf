@@ -1,0 +1,21 @@
+#!/bin/bash
+set -eou pipefail
+
+BLOG=$1
+
+if [[ ! -r published ]]
+then
+	find $BLOG/content/posts -name '*.md' -type f > posts
+	cat posts | xargs grep -F -l 'draft: true' > drafts
+	grep -F -v -f drafts posts > published
+	rm -rf drafts posts
+	rm -rf plaintext
+	mkdir plaintext
+fi
+
+while read POSTNAME
+do
+	BN=$(basename $POSTNAME)
+	pandoc --wrap=none -f markdown-smart --no-highlight -t plain $POSTNAME |
+		sed -e 's/({{<..*>}})//' -e 's/\[\]//' > plaintext/$BN
+done < published
