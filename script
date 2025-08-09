@@ -1,14 +1,21 @@
 #!/bin/bash
 set -eou pipefail
 
-BLOG=$1
+rm -rf counts
+mkdir counts
 
-find $BLOG/content/posts -name '*.md' -type f > posts
-find $BLOG/content/posts -name '*.md' -type f | xargs grep -F -l 'draft: true' > drafts
-grep -F -v -f drafts posts > published
-
+# Terms per document, each frequency or count in its own file
 while read POSTNAME
 do
-	pandoc -f markdown-smart --no-highlight -t plain $POSTNAME |
-		sed -e 's/({{<..*>}})//' -e '/^    /d' -e '/^ *[ -][ -]*$/d'
+	BN=$(basename $POSTNAME)
+	echo $BN
+	cat plaintext/$BN |
+		sed -e 's/({{<..*>}})//' -e '/^    /d' -e '/^ *[ -][ -]*$/d' |
+		tr -cs "A-Za-z'" '\n' |
+		sed -e "/^'.*/d" -e '/^$/d' |
+		tr '[A-Z]' '[a-z]' |
+		grep -F -v -w -f /usr/share/groff/1.23.0/eign |
+		sort |
+		uniq -c |
+		awk '{print $2, $1}' > counts/$BN
 done < published
