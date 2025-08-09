@@ -6,7 +6,13 @@ blog, implemented in shell scripts.
 
 ## Running
 
-Three phases, because some of the calculations end up very time consuming.
+I wrote it to work in three phases,
+because some of the calculations end up very time consuming.
+I didn't want to repeat them every time I tried something new.
+
+These scripts assume your current working directory contains
+the scripts.
+The scripts create directories and files in place with themselves.
 
 ### Phase 1: generate plain text from Hugo markdown documents.
 
