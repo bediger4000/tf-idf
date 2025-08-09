@@ -16,7 +16,7 @@ awk "{print \$1, log($TOTAL_DOCUMENTS/\$2)}" document.counts > term.idf
 for COUNTFILE in counts/*
 do
 	BN=$(basename $COUNTFILE)
-	TOTAL_TERMS=$(cut -f2 -d' ' $COUNTFILE | awk '{sum += $1} END {print sum})
+	TOTAL_TERMS=$(cut -f2 -d' ' $COUNTFILE | awk '{sum += $1} END {print sum}')
 	awk "{print \$1, \$2/$TOTAL_TERMS}" $COUNTFILE > frequency/$BN
 	join frequency/$BN term.idf |
 		awk '{printf "%s\t%f\n", $1, $2 * $3}' |
