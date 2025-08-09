@@ -14,7 +14,7 @@ do
 		tr -cs "A-Za-z'" '\n' |
 		sed -e "/^'.*/d" -e '/^$/d' |
 		tr '[A-Z]' '[a-z]' |
-		grep -F -v -w -f /usr/share/groff/1.23.0/eign |
+		grep -F -v -w -f /usr/share/groff/current/eign |
 		sort |
 		uniq -c |
 		awk '{print $2, $1}' > counts/$BN
